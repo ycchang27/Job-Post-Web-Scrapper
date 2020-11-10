@@ -15,10 +15,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(os.environ.get('SECRET_KEY', 'NA'))
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', 'False'))
+DEBUG = 'True' == os.environ['DEBUG']
 
 ALLOWED_HOSTS = []
 
@@ -67,12 +67,12 @@ WSGI_APPLICATION = 'job_finder.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-ENGINE=str(os.environ.get('ENGINE', 'django.db.backends.sqlite3'))
-NAME=str(os.environ.get('NAME', BASE_DIR / 'db.sqlite3'))
-HOST=str(os.environ.get('HOST', None))
-USER=str(os.environ.get('USER', None))
-PASSWORD=str(os.environ.get('PASSWORD', None))
-PORT=str(os.environ.get('PORT', None))
+ENGINE = os.environ['ENGINE']
+NAME = os.environ['NAME']
+HOST = os.environ['HOST']
+USER = os.environ['USER']
+PASSWORD = os.environ['PASSWORD']
+PORT = os.environ['PORT']
 
 DATABASES = {
     'default': {
