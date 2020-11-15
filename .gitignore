@@ -240,3 +240,4 @@ dmypy.json
 # Custom settings
 *.env
 *.sqlite3
+*mydatabase*

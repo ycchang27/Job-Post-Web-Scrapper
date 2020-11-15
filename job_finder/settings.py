@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'jobs',
 ]
 
 MIDDLEWARE = [
@@ -74,16 +75,24 @@ USER = os.environ['USER']
 PASSWORD = os.environ['PASSWORD']
 PORT = os.environ['PORT']
 
-DATABASES = {
+if ENGINE == '' or ENGINE is None:
+    DATABASES = {
     'default': {
-        'ENGINE': ENGINE,
-        'NAME': NAME,
-        'HOST': HOST,
-        'USER': USER,
-        'PASSWORD': PASSWORD,
-        'PORT': PORT,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': ENGINE,
+            'NAME': NAME,
+            'HOST': HOST,
+            'USER': USER,
+            'PASSWORD': PASSWORD,
+            'PORT': PORT,
+        }
+    }
 
 
 # Password validation
