@@ -15,7 +15,7 @@ from jobs.models import Jobs
 
 class LinkedInCrawler:
     __TIMEOUT_SECONDS = 10
-    __NO_RESPONSE_MAX = 20
+    __NO_RESPONSE_MAX = 50
     __JOB_BOARD_NAME = 'LINKEDIN'
     def __init__(self):
         self.__chrome_options = webdriver.ChromeOptions()
@@ -23,6 +23,7 @@ class LinkedInCrawler:
         self.__chrome_options.add_argument('--disable-gpu')
         self.__chrome_options.add_argument('--no-sandbox')
         self.__chrome_options.add_argument('--headless')
+        self.__chrome_options.add_argument("--disable-dev-shm-usage")
         self.__driver = webdriver.Chrome(executable_path=os.environ['CHROMEDRIVER_PATH'], chrome_options=self.__chrome_options)
         self.__action = ActionChains(self.__driver)
 
@@ -43,7 +44,7 @@ class LinkedInCrawler:
             # last_height = new_height
             time.sleep(0.25)
             try:
-                see_more_jobs = WebDriverWait(self.__driver, 2) \
+                see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                     .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
                     '.infinite-scroller__show-more-button.infinite-scroller__show-more-button'))
                 )
@@ -61,10 +62,10 @@ class LinkedInCrawler:
                     no_response_count += 1
             except NoSuchElementException:
                 print('no such element found - please fix the css')
-                break
+                no_response_count += 1
             except TimeoutException:
                 print('timed out - please look into this')
-                break
+                no_response_count += 1
 
         # Get all currently listed job urls
         job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
