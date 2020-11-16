@@ -34,13 +34,13 @@ class LinkedInCrawler:
         self.__driver.get('https://www.linkedin.com/jobs/search?keywords=Software%2BEngineer&location=California%2C%2BUnited%2BStates&trk=public_jobs_jobs-search-bar_search-submit&f_TP=1%2C2&f_SB2=3&f_JT=F&f_E=2%2C3&f_PP=106471299&redirect=false&position=1&pageNum=0')
         
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
-        last_height = self.__driver.execute_script('return document.body.scrollHeight')
+        # last_height = self.__driver.execute_script('return document.body.scrollHeight')
         has_retried: bool = False
         no_response_count: int = 0
         while no_response_count <= self.__NO_RESPONSE_MAX:
-            self.__driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            new_height = self.__driver.execute_script('return document.body.scrollHeight')
-            last_height = new_height
+            self.__driver.execute_script('window.scrollTo(0, 1000)')
+            # new_height = self.__driver.execute_script('return document.body.scrollHeight')
+            # last_height = new_height
             time.sleep(0.25)
             try:
                 see_more_jobs = WebDriverWait(self.__driver, 2) \
@@ -117,10 +117,9 @@ class LinkedInCrawler:
                     company_name=company_name,
                     job_board_site=self.__JOB_BOARD_NAME
                 )
-                Jobs.save()
                 print('job added')
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
+            except Exception as e: 
+                print(e)
             pass
 
             # switch back to original tab
