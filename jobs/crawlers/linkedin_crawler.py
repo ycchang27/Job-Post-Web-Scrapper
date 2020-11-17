@@ -44,6 +44,35 @@ class LinkedInCrawler:
             # last_height = new_height
             time.sleep(0.25)
             try:
+                show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                    .until(EC.presence_of_element_located((By.XPATH , \
+                    '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
+                )
+                show_more_button.click()
+
+                # Extract job post
+                title: str = self.__driver.find_element_by_class_name('topcard__title').text
+                company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
+                description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
+
+                job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
+                location: str = job_header[0].text.replace(company_name, '')
+                posted_date: str = job_header[1].text.split(' ago')[0]
+                if 'HOURS' in posted_date.upper():
+                    posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
+                elif 'DAYS' in posted_date.upper():
+                    posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
+                
+                # Display data
+                print('-----------------------------------------------------')
+                print('url='+url)
+                print('title:'+title)
+                print('location:'+location)
+                print(('description:'+description).encode('unicode_escape'))
+                print('posted_date:'+str(posted_date))
+                print('company:'+company_name)
+                print('job_board_site:'+self.__JOB_BOARD_NAME)
+                print('-----------------------------------------------------')
                 see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                     .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
                     '.infinite-scroller__show-more-button.infinite-scroller__show-more-button'))
@@ -67,62 +96,62 @@ class LinkedInCrawler:
                 print('timed out - please look into this')
                 no_response_count += 1
 
-        # Get all currently listed job urls
-        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
+        # # Get all currently listed job urls
+        # job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
 
-        # Navigate to each url and extract data
-        for job_post in job_posts:
-            # Navigate to the url
-            url: str = job_post.get_attribute('href')
-            self.__driver.execute_script("window.open('');")
-            self.__driver.switch_to_window(self.__driver.window_handles[1])
-            self.__driver.get(url)
-            show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-                .until(EC.presence_of_element_located((By.XPATH , \
-                '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
-            )
-            show_more_button.click()
+        # # Navigate to each url and extract data
+        # for job_post in job_posts:
+        #     # Navigate to the url
+        #     url: str = job_post.get_attribute('href')
+        #     self.__driver.execute_script("window.open('');")
+        #     self.__driver.switch_to_window(self.__driver.window_handles[1])
+        #     self.__driver.get(url)
+        #     show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+        #         .until(EC.presence_of_element_located((By.XPATH , \
+        #         '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
+        #     )
+        #     show_more_button.click()
 
-            # Extract job post
-            title: str = self.__driver.find_element_by_class_name('topcard__title').text
-            company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
-            description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
+        #     # Extract job post
+        #     title: str = self.__driver.find_element_by_class_name('topcard__title').text
+        #     company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
+        #     description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
 
-            job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
-            location: str = job_header[0].text.replace(company_name, '')
-            posted_date: str = job_header[1].text.split(' ago')[0]
-            if 'HOURS' in posted_date.upper():
-                posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
-            elif 'DAYS' in posted_date.upper():
-                posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
+        #     job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
+        #     location: str = job_header[0].text.replace(company_name, '')
+        #     posted_date: str = job_header[1].text.split(' ago')[0]
+        #     if 'HOURS' in posted_date.upper():
+        #         posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
+        #     elif 'DAYS' in posted_date.upper():
+        #         posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
             
-            # Display data
-            print('-----------------------------------------------------')
-            print('url='+url)
-            print('title:'+title)
-            print('location:'+location)
-            print(('description:'+description).encode('unicode_escape'))
-            print('posted_date:'+str(posted_date))
-            print('company:'+company_name)
-            print('job_board_site:'+self.__JOB_BOARD_NAME)
-            print('-----------------------------------------------------')
+        #     # Display data
+        #     print('-----------------------------------------------------')
+        #     print('url='+url)
+        #     print('title:'+title)
+        #     print('location:'+location)
+        #     print(('description:'+description).encode('unicode_escape'))
+        #     print('posted_date:'+str(posted_date))
+        #     print('company:'+company_name)
+        #     print('job_board_site:'+self.__JOB_BOARD_NAME)
+        #     print('-----------------------------------------------------')
 
-            # Save to database
-            try:
-                Jobs.objects.create(
-                    url=url,
-                    title=title,
-                    location=location,
-                    description=description,
-                    posted_date=posted_date,
-                    company_name=company_name,
-                    job_board_site=self.__JOB_BOARD_NAME
-                )
-                print('job added')
-            except Exception as e: 
-                print(e)
-            pass
+        #     # Save to database
+        #     try:
+        #         Jobs.objects.create(
+        #             url=url,
+        #             title=title,
+        #             location=location,
+        #             description=description,
+        #             posted_date=posted_date,
+        #             company_name=company_name,
+        #             job_board_site=self.__JOB_BOARD_NAME
+        #         )
+        #         print('job added')
+        #     except Exception as e: 
+        #         print(e)
+        #     pass
 
-            # switch back to original tab
-            self.__driver.close()
-            self.__driver.switch_to.window(self.__driver.window_handles[0])
+        #     # switch back to original tab
+        #     self.__driver.close()
+        #     self.__driver.switch_to.window(self.__driver.window_handles[0])
