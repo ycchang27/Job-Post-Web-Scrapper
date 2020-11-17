@@ -65,7 +65,7 @@ class LinkedInCrawler:
                 
                 # Display data
                 print('-----------------------------------------------------')
-                print('url='+url)
+                
                 print('title:'+title)
                 print('location:'+location)
                 print(('description:'+description).encode('unicode_escape'))
