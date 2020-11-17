@@ -24,6 +24,9 @@ class LinkedInCrawler:
         self.__chrome_options.add_argument('--no-sandbox')
         self.__chrome_options.add_argument('--headless')
         self.__chrome_options.add_argument("--disable-dev-shm-usage")
+        self.__chrome_options.add_argument('--incognito')
+        self.__chrome_options.add_argument('--disable-extensions')
+        self.__chrome_options.add_argument('--version')
         self.__driver = webdriver.Chrome(executable_path=os.environ['CHROMEDRIVER_PATH'], chrome_options=self.__chrome_options)
         self.__action = ActionChains(self.__driver)
 
@@ -33,6 +36,11 @@ class LinkedInCrawler:
         '''
         # Navigate to the job listings
         self.__driver.get('https://www.linkedin.com/jobs/search?keywords=Software%2BEngineer&location=California%2C%2BUnited%2BStates&trk=public_jobs_jobs-search-bar_search-submit&f_TP=1%2C2&f_SB2=3&f_JT=F&f_E=2%2C3&f_PP=106471299&redirect=false&position=1&pageNum=0')
+        time.sleep(10)
+        print(self.__driver.page_source)
+        print('-----------------------------------------------------')
+        self.__driver.get('https://www.linkedin.com/jobs/')
+        time.sleep(10)
         print(self.__driver.page_source)
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         # last_height = self.__driver.execute_script('return document.body.scrollHeight')
