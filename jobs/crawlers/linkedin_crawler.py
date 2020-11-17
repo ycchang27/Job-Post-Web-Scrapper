@@ -33,68 +33,68 @@ class LinkedInCrawler:
         '''
         # Navigate to the job listings
         self.__driver.get('https://www.linkedin.com/jobs/search?keywords=Software%2BEngineer&location=California%2C%2BUnited%2BStates&trk=public_jobs_jobs-search-bar_search-submit&f_TP=1%2C2&f_SB2=3&f_JT=F&f_E=2%2C3&f_PP=106471299&redirect=false&position=1&pageNum=0')
-        
+        print(self.__driver.page_source)
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         # last_height = self.__driver.execute_script('return document.body.scrollHeight')
-        has_retried: bool = False
-        no_response_count: int = 0
-        while no_response_count <= self.__NO_RESPONSE_MAX:
-            self.__driver.execute_script('window.scrollTo(0, 1000)')
-            # new_height = self.__driver.execute_script('return document.body.scrollHeight')
-            # last_height = new_height
-            time.sleep(0.25)
-            try:
-                show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-                    .until(EC.presence_of_element_located((By.XPATH , \
-                    '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
-                )
-                show_more_button.click()
+        # has_retried: bool = False
+        # no_response_count: int = 0
+        # while no_response_count <= self.__NO_RESPONSE_MAX:
+        #     self.__driver.execute_script('window.scrollTo(0, 1000)')
+        #     # new_height = self.__driver.execute_script('return document.body.scrollHeight')
+        #     # last_height = new_height
+        #     time.sleep(0.25)
+        #     try:
+        #         show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+        #             .until(EC.presence_of_element_located((By.XPATH , \
+        #             '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
+        #         )
+        #         show_more_button.click()
 
-                # Extract job post
-                title: str = self.__driver.find_element_by_class_name('topcard__title').text
-                company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
-                description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
+        #         # Extract job post
+        #         title: str = self.__driver.find_element_by_class_name('topcard__title').text
+        #         company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
+        #         description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
 
-                job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
-                location: str = job_header[0].text.replace(company_name, '')
-                posted_date: str = job_header[1].text.split(' ago')[0]
-                if 'HOURS' in posted_date.upper():
-                    posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
-                elif 'DAYS' in posted_date.upper():
-                    posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
+        #         job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
+        #         location: str = job_header[0].text.replace(company_name, '')
+        #         posted_date: str = job_header[1].text.split(' ago')[0]
+        #         if 'HOURS' in posted_date.upper():
+        #             posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
+        #         elif 'DAYS' in posted_date.upper():
+        #             posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
                 
-                # Display data
-                print('-----------------------------------------------------')
+        #         # Display data
+        #         print('-----------------------------------------------------')
                 
-                print('title:'+title)
-                print('location:'+location)
-                print(('description:'+description).encode('unicode_escape'))
-                print('posted_date:'+str(posted_date))
-                print('company:'+company_name)
-                print('job_board_site:'+self.__JOB_BOARD_NAME)
-                print('-----------------------------------------------------')
-                see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-                    .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
-                    '.infinite-scroller__show-more-button.infinite-scroller__show-more-button'))
-                )
+        #         print('title:'+title)
+        #         print('location:'+location)
+        #         print(('description:'+description).encode('unicode_escape'))
+        #         print('posted_date:'+str(posted_date))
+        #         print('company:'+company_name)
+        #         print('job_board_site:'+self.__JOB_BOARD_NAME)
+        #         print('-----------------------------------------------------')
+        #         see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+        #             .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
+        #             '.infinite-scroller__show-more-button.infinite-scroller__show-more-button'))
+        #         )
                 
-                if see_more_jobs.is_displayed() and see_more_jobs.is_enabled():
-                    if has_retried:
-                        no_response_count = 0
-                        has_retried = False
-                    else:
-                        no_response_count += 1
-                    retry_count = 0
-                    see_more_jobs.click()
-                else:
-                    has_retried = True
-                    no_response_count += 1
-            except NoSuchElementException:
-                print('no such element found - please fix the css')
-                no_response_count += 1
-            except TimeoutException:
-                print('timed out - please look into this')
-                no_response_count += 1
+        #         if see_more_jobs.is_displayed() and see_more_jobs.is_enabled():
+        #             if has_retried:
+        #                 no_response_count = 0
+        #                 has_retried = False
+        #             else:
+        #                 no_response_count += 1
+        #             retry_count = 0
+        #             see_more_jobs.click()
+        #         else:
+        #             has_retried = True
+        #             no_response_count += 1
+        #     except NoSuchElementException:
+        #         print('no such element found - please fix the css')
+        #         no_response_count += 1
+        #     except TimeoutException:
+        #         print('timed out - please look into this')
+        #         no_response_count += 1
 
         # # Get all currently listed job urls
         # job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
