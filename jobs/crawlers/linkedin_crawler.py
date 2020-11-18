@@ -35,12 +35,33 @@ class LinkedInCrawler:
         Collects job posts from LinkedIn Jobs with preset configurations
         '''
         # Navigate to the job listings
-        self.__driver.get('https://www.linkedin.com/jobs/search?keywords=Software%2BEngineer&location=California%2C%2BUnited%2BStates&trk=public_jobs_jobs-search-bar_search-submit&f_TP=1%2C2&f_SB2=3&f_JT=F&f_E=2%2C3&f_PP=106471299&redirect=false&position=1&pageNum=0')
-        time.sleep(10)
-        print(self.__driver.page_source)
-        print('-----------------------------------------------------')
+        # self.__driver.get('https://www.linkedin.com/jobs/search?keywords=Software%2BEngineer&location=California%2C%2BUnited%2BStates&trk=public_jobs_jobs-search-bar_search-submit&f_TP=1%2C2&f_SB2=3&f_JT=F&f_E=2%2C3&f_PP=106471299&redirect=false&position=1&pageNum=0')
+        # time.sleep(10)
+        # print(self.__driver.page_source)
+        # print('-----------------------------------------------------')
         self.__driver.get('https://www.linkedin.com/jobs/')
         time.sleep(10)
+
+        job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+            .until(EC.presence_of_element_located((By.XPATH , \
+            '//input[@aria-label="Search job titles or companies"]'))
+        )
+        job_name_input.clear()
+        job_name_input.send_keys('Software Engineer')
+
+        job_location_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+            .until(EC.presence_of_element_located((By.XPATH , \
+            '//input[@aria-label="Location"]'))
+        )
+        job_location_input.clear()
+        job_location_input.send_keys('Portland, Oregon, United States')
+
+        send_button = self.__driver.find_element_by_class_name('search__button pill pill--blue etta-pill')
+        send_button.click()
+
+        print(self.__driver.page_source)
+        print('-----------------------------------------------------')
+        time.sleep(20)
         print(self.__driver.page_source)
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         # last_height = self.__driver.execute_script('return document.body.scrollHeight')
