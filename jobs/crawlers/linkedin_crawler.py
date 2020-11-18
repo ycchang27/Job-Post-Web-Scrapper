@@ -126,20 +126,19 @@ class LinkedInCrawler:
             print('-----------------------------------------------------')
 
             # Save to database
-            # try:
-            #     Jobs.objects.create(
-            #         url=url,
-            #         title=title,
-            #         location=location,
-            #         description=description,
-            #         posted_date=posted_date,
-            #         company_name=company_name,
-            #         job_board_site=self.__JOB_BOARD_NAME
-            #     )
-            #     print('job added')
-            # except Exception as e: 
-            #     print(e)
-            # pass
+            try:
+                Jobs.objects.create(
+                    url=url,
+                    title=title,
+                    location=location,
+                    description=description,
+                    posted_date=posted_date,
+                    company_name=company_name,
+                    job_board_site=self.__JOB_BOARD_NAME
+                )
+                print('job added')
+            except Exception as e: 
+                print(e)
 
             # switch back to original tab
             self.__driver.close()
