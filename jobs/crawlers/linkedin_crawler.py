@@ -109,11 +109,19 @@ class LinkedInCrawler:
             job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
             location: str = job_header[0].text.replace(company_name, '')
             posted_date: str = job_header[1].text.split(' ago')[0]
-            if 'HOURS' in posted_date.upper():
+            if 'HOURS' in posted_date.upper() or 'HOUR' in posted_date.upper():
                 posted_date = datetime.now() - timedelta(hours=int(posted_date.split(' ')[0]))
-            elif 'DAYS' in posted_date.upper():
+            elif 'DAYS' in posted_date.upper() or 'DAY' in posted_date.upper():
                 posted_date = datetime.now() - timedelta(days=int(posted_date.split(' ')[0]))
-            
+            elif 'WEEKS' in posted_date.upper() or 'WEEK' in posted_date.upper():
+                posted_date = datetime.now() - timedelta(days=7 * int(posted_date.split(' ')[0]))
+            elif 'MONTHS' in posted_date.upper() or 'MONTH' in posted_date.upper():
+                posted_date = datetime.now() - timedelta(months=int(posted_date.split(' ')[0]))
+            elif 'YEAR' in posted_date.upper() or 'YEARS' in posted_date.upper():
+                continue # too old
+            else:
+                posted_date = datetime.now() # too small to subtract
+
             # Display data
             print('-----------------------------------------------------')
             print('url='+url)
