@@ -1,9 +1,11 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, TimeoutException
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 
 from datetime import datetime, timedelta
 import os
@@ -40,7 +42,6 @@ class LinkedInCrawler:
         # print(self.__driver.page_source)
         # print('-----------------------------------------------------')
         self.__driver.get('https://www.linkedin.com/jobs/')
-        time.sleep(10)
 
         job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
             .until(EC.presence_of_element_located((By.XPATH , \
@@ -55,14 +56,9 @@ class LinkedInCrawler:
         )
         job_location_input.clear()
         job_location_input.send_keys('Portland, Oregon, United States')
+        job_location_input.send_keys(Keys.ENTER)
 
-        send_button = self.__driver.find_element_by_class_name('search__button pill pill--blue etta-pill')
-        send_button.click()
-
-        print(self.__driver.page_source)
-        print('-----------------------------------------------------')
-        time.sleep(20)
-        print(self.__driver.page_source)
+        print(self.__driver.page_source.encode('unicode_escape'))
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         # last_height = self.__driver.execute_script('return document.body.scrollHeight')
         # has_retried: bool = False
