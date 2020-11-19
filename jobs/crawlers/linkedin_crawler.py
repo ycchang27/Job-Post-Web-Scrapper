@@ -116,7 +116,7 @@ class LinkedInCrawler:
             elif 'WEEKS' in posted_date.upper() or 'WEEK' in posted_date.upper():
                 posted_date = datetime.now() - timedelta(days=7 * int(posted_date.split(' ')[0]))
             elif 'MONTHS' in posted_date.upper() or 'MONTH' in posted_date.upper():
-                posted_date = datetime.now() - timedelta(months=int(posted_date.split(' ')[0]))
+                posted_date = datetime.now() - timedelta(days=30 * int(posted_date.split(' ')[0]))
             elif 'YEAR' in posted_date.upper() or 'YEARS' in posted_date.upper():
                 continue # too old
             else:
