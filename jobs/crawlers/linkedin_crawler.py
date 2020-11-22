@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from datetime import datetime, timedelta
 import os
+import random
 import re
 import sys
 import time
@@ -31,6 +32,8 @@ class LinkedInCrawler:
         self.__chrome_options.add_argument('--version')
         self.__driver = webdriver.Chrome(executable_path=os.environ['CHROMEDRIVER_PATH'], chrome_options=self.__chrome_options)
         self.__action = ActionChains(self.__driver)
+        print('Using driver: ' + self.__driver.execute_script("return navigator.userAgent"))
+
 
     def scrape(self):
         '''
@@ -38,15 +41,20 @@ class LinkedInCrawler:
         '''
         # Navigate to the job listings
         self.__driver.get('https://www.linkedin.com/jobs/')
-        job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-            .until(EC.presence_of_element_located((By.XPATH , \
-            '//input[@aria-label="Search job titles or companies"]'))
+        self.delay_by_random_seconds()
+        job_name_input: WebElement = self.try_and_catch_find_webelements(
+            lambda: WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                .until(EC.presence_of_element_located((By.XPATH , \
+                '//input[@aria-label="Search job titles or companies"]'))
+            )
         )
         job_name_input.clear()
         job_name_input.send_keys('Software Engineer')
-        job_location_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-            .until(EC.presence_of_element_located((By.XPATH , \
-            '//input[@aria-label="Location"]'))
+        job_location_input: WebElement = self.try_and_catch_find_webelements(
+            lambda: WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                .until(EC.presence_of_element_located((By.XPATH , \
+                '//input[@aria-label="Location"]'))
+            )
         )
         job_location_input.clear()
         job_location_input.send_keys('Portland, Oregon, United States')
@@ -60,7 +68,7 @@ class LinkedInCrawler:
             self.__driver.execute_script('window.scrollTo(0, ' + str(last_height) + ')')
             new_height = self.__driver.execute_script('return document.body.scrollHeight')
             last_height = new_height
-            time.sleep(0.25)
+            self.delay_by_random_seconds()
             try:
                 see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                     .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
@@ -85,28 +93,33 @@ class LinkedInCrawler:
                 no_response_count += 1
 
         # Get all currently listed job urls
-        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
+        job_posts = self.try_and_catch_find_webelements(
+            lambda: self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
+        )
 
         # Navigate to each url and extract data
         print('There are ' + str(len(job_posts)) + ' jobs')
+        job_index = 1
         for job_post in job_posts:
             # Navigate to the url
             url: str = job_post.get_attribute('href')
             self.__driver.execute_script("window.open('');")
             self.__driver.switch_to_window(self.__driver.window_handles[1])
             self.__driver.get(url)
-            show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
-                .until(EC.presence_of_element_located((By.XPATH , \
-                '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
+            show_more_button = self.try_and_catch_find_webelements(
+                lambda: WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                    .until(EC.presence_of_element_located((By.XPATH , \
+                    '//button[@class="show-more-less-html__button show-more-less-html__button--more"]'))
+                )
             )
             show_more_button.click()
 
             # Extract job post
-            title: str = self.__driver.find_element_by_class_name('topcard__title').text
-            company_name: str = self.__driver.find_element_by_class_name('topcard__flavor').text
-            description: str = self.__driver.find_element_by_class_name('show-more-less-html__markup').text
+            title: str = self.try_and_catch_find_webelements(lambda: self.__driver.find_element_by_class_name('topcard__title')).text
+            company_name: str = self.try_and_catch_find_webelements(lambda: self.__driver.find_element_by_class_name('topcard__flavor')).text
+            description: str = self.try_and_catch_find_webelements(lambda: self.__driver.find_element_by_class_name('show-more-less-html__markup')).text
 
-            job_header = self.__driver.find_elements_by_class_name('topcard__flavor-row')
+            job_header = self.try_and_catch_find_webelements(lambda: self.__driver.find_elements_by_class_name('topcard__flavor-row'))
             location: str = job_header[0].text.replace(company_name, '')
             posted_date: str = job_header[1].text.split(' ago')[0]
             if 'HOURS' in posted_date.upper() or 'HOUR' in posted_date.upper():
@@ -124,6 +137,7 @@ class LinkedInCrawler:
 
             # Display data
             print('-----------------------------------------------------')
+            print('job # ' + str(job_index))
             print('url='+url)
             print('title:'+title)
             print('location:'+location)
@@ -132,6 +146,7 @@ class LinkedInCrawler:
             print('company:'+company_name)
             print('job_board_site:'+self.__JOB_BOARD_NAME)
             print('-----------------------------------------------------')
+            job_index += 1
 
             # Save to database
             try:
@@ -145,9 +160,31 @@ class LinkedInCrawler:
                     job_board_site=self.__JOB_BOARD_NAME
                 )
                 print('job added')
-            except Exception as e: 
-                print(e)
+            except Exception as e:
+                print('Exception has occurred while trying to insert Job into the database: ', e)
 
             # switch back to original tab
             self.__driver.close()
             self.__driver.switch_to.window(self.__driver.window_handles[0])
+
+            self.delay_by_random_seconds()
+        self.__driver.close()
+
+    def delay_by_random_seconds(self):
+        '''
+        Sleep for a certain second in timeframe [0.5, 1] to avoid overloading requests
+        '''
+        time.sleep(random.randint(5, 10) / 10.0)
+
+    def try_and_catch_find_webelements(self, f):
+        '''
+        Calls the given WebElement(s) fetch function. Returns WebElement(s) if found. 
+        If not, then it prints current html view and throws exception
+        '''
+        try:
+            return f()
+        except Exception as e: 
+            print('Exception has occurred while trying to find the WebElement(s): ', e)
+            print('Print the current driver: ')
+            print(self.__driver.page_source.encode('utf-8'))
+            raise
