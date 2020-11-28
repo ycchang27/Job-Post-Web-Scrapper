@@ -152,7 +152,7 @@ class LinkedInCrawler:
         try:
             signin_link: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
-                '//a[@data-tracking-control-name="auth_wall_desktop-login-toggle"]'))
+                '//a[@data-tracking-control-name="auth_wall_desktop_jserp-login-toggle"]'))
             )
             print('signing in with authwall')
             username_xpath = '//input[@class="login-email"]'
