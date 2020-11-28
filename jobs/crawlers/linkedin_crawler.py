@@ -178,7 +178,9 @@ class LinkedInCrawler:
         '''
         Search by job name and location only
         '''
-        # Search jobs without authwall
+        # Search jobs
+        entire_html: str = self.__driver.page_source.encode('unicode_escape')
+        print(entire_html)
         job_name_input: WebElement = self.try_and_catch_find_webelements(
             lambda: WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
