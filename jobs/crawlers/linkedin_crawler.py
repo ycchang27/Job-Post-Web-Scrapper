@@ -143,7 +143,8 @@ class LinkedInCrawler:
         '''
         self.__driver.get('https://www.linkedin.com/jobs/')
         self.delay_by_2_to_3_seconds()
-
+        entire_html: str = self.__driver.page_source.encode('unicode_escape')
+        print(entire_html)
         # Check for authwall. Signin if necessary
         username_xpath: str = ''
         password_xpath: str = ''
