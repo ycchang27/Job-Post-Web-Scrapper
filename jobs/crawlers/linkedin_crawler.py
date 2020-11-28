@@ -158,7 +158,7 @@ class LinkedInCrawler:
             username_xpath = '//input[@class="login-email"]'
             password_xpath = '//input[@class="login-password"]'
             login_submit_xpath = '//input[@class="login submit-button"]'
-            
+            signin_link.click()
         except:
             print('signing in with other link')
             signin_link: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
@@ -168,7 +168,8 @@ class LinkedInCrawler:
             username_xpath = '//input[@id="username"]'
             password_xpath = '//input[@id="password"]'
             login_submit_xpath = '//button[@aria-label="Sign in"]'
-        signin_link.click()
+            signin_link.click()
+
         self.delay_by_2_to_3_seconds()
         self.login(username_xpath, password_xpath, login_submit_xpath)
         self.delay_by_2_to_3_seconds()
