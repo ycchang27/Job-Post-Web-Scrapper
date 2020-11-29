@@ -177,7 +177,8 @@ class MonsterCrawler:
                 posted_date = datetime.now() # too small to subtract
             if last_posted == 0:
                 last_posted = 1
-            if posted_date < datetime.now() - timedelta(days=last_posted):
+            posted_date = posted_date.date()
+            if posted_date < datetime.now().date() - timedelta(days=last_posted):
                 print('date too older than ' + str(last_posted) + ' day(s): ' + str(posted_date))
                 continue
 
