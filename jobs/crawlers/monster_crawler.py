@@ -145,19 +145,22 @@ class MonsterCrawler:
             self.sleep_between_three_to_five_seconds()
 
             # Extract job post
-            title: str = self.__driver.find_element_by_xpath('//h1[@name="job_title"]').text
-            company_name: str = self.__driver.find_element_by_xpath('//div[@name="job_company_name"]').text
-            description: str = self.__driver.find_element_by_xpath('//div[@name="value_description"]/div').text
-            location: str = self.__driver.find_element_by_xpath('//div[@name="job_company_location"]').text
-            posted_date: str = ''
-            
+            try:
+                title: str = self.__driver.find_element_by_xpath('//h1[@name="job_title"]').text
+                company_name: str = self.__driver.find_element_by_xpath('//div[@name="job_company_name"]').text
+                description: str = self.__driver.find_element_by_xpath('//div[@name="value_description"]/div').text
+                location: str = self.__driver.find_element_by_xpath('//div[@name="job_company_location"]').text
+            except:
+                print('Job info extraction failed (probably job not found): ' + url)
+                continue
+            posted_date: str = ''    
             try:
                 posted_date = self.__driver.find_element_by_xpath('//div[@name="value_posted"]/div').text.replace(' ago', '')
             except:
                 try:
                     posted_date = self.__driver.find_element_by_xpath('//div[@name="value_posted"]').text.replace(' ago', '')
                 except:
-                    print('Date not found')
+                    print('Date not found for url: ' + url)
                     raise
             # format date
             if 'TODAY' in posted_date.upper() or 'TODAY' in posted_date.upper():
