@@ -1,0 +1,17 @@
+<h1>HomePage</h1>
+
+<form action="{% url 'search_results' %}" method="get">
+    <input name="title_include_query" type="text" placeholder="Search by title">
+    <input name="title_exclude_query" type="text" placeholder="Ignore title">
+
+    <input name="location_include_query" type="text" placeholder="Search by location">
+    <input name="location_exclude_query" type="text" placeholder="Ignore location">
+
+    <input name="description_include_query" type="text" placeholder="Search by description">
+    <input name="description_exclude_query" type="text" placeholder="Ignore description">
+
+    <input name="company_name_include_query" type="text" placeholder="Search by company name">
+    <input name="company_name_exclude_query" type="text" placeholder="Ignore company name">
+
+    <input type="submit" value="Submit">
+</form>
