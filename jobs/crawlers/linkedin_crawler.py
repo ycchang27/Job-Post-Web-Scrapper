@@ -15,7 +15,7 @@ import sys
 import time
 import traceback
 
-from jobs.models import Jobs
+from jobs.models import Job
 
 class LinkedInCrawler:
     __TIMEOUT_SECONDS = 10

@@ -17,7 +17,7 @@ import time
 import traceback
 
 
-from jobs.models import Jobs
+from jobs.models import Job
 
 class MonsterCrawler:
     __TIMEOUT_SECONDS = 10
@@ -53,6 +53,7 @@ class MonsterCrawler:
         
         # Extract all job post urls
         job_post_urls = self.extract_job_post_urls(search_url)
+        job_post_urls = self.remove_duplicate_urls(job_post_urls)
         
         # Add all jobs to db
         self.add_to_db(job_post_urls, last_posted)
@@ -129,7 +130,7 @@ class MonsterCrawler:
         for job_post in job_posts:
             job_post = job_post.find_element_by_tag_name('a')
             job_urls.append(str(job_post.get_attribute('href')))
-        print('Link extraction complete')
+        print('Link extraction complete. Extracted ' + len(job_urls) + ' urls')
         return job_urls
     
     def add_to_db(self, job_post_urls: list, last_posted: int):
@@ -162,6 +163,7 @@ class MonsterCrawler:
                 except:
                     print('Date not found for url: ' + url)
                     raise
+
             # format date
             if 'TODAY' in posted_date.upper() or 'TODAY' in posted_date.upper():
                 posted_date = datetime.now()
@@ -198,7 +200,7 @@ class MonsterCrawler:
 
             # Save to database
             try:
-                Jobs.objects.create(
+                Job.objects.get_or_create(
                     url=url,
                     title=title,
                     location=location,
@@ -214,3 +216,12 @@ class MonsterCrawler:
             # switch back to original tab
             self.__driver.close()
             self.__driver.switch_to.window(self.__driver.window_handles[0])
+
+    def remove_duplicate_urls(self, urls: list):
+        '''
+        Remove urls that already exist in the database
+        '''
+        existing_urls = list(Job.objects.values_list('url', flat=True))
+        urls_to_insert_to_db = list(set(urls) - set(existing_urls))
+        print('Removed duplicates. There are ' + len(urls_to_insert_to_db) + ' urls to be added to database')
+        return urls_to_insert_to_db
