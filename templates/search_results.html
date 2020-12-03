@@ -1,15 +1,15 @@
 <h1>Search Results</h1>
 
 
-{% for jobs in jobs_list %}
+{% for job in job_list %}
 <hr>
 <div>
-    <h2>{{ jobs.title }} | {{ jobs.location }} | {{ jobs.company_name }}</h2>
-    <h3>{{ jobs.job_board_site }} | {{ jobs.posted_date }}</h3>
-    {{ jobs.url }}
+    <h2>{{ job.title }} | {{ job.location }} | {{ job.company_name }}</h2>
+    <h3>{{ job.job_board_site }} | {{ job.posted_date }}</h3>
+    {{ job.url }}
     <br/>
     <br/>
-    {{ jobs.description }}
+    {{ job.description }}
 </div>
 <hr>
 {% endfor %}

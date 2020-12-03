@@ -2,13 +2,13 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
 from django.db.models import Q
 
-from .models import Jobs
+from .models import Job
 
 class HomePageView(TemplateView):
     template_name = 'index.html'
 
 class SearchResultsView(ListView):
-    model = Jobs
+    model = Job
     template_name = 'search_results.html'
     
     def get_queryset(self):
@@ -26,7 +26,7 @@ class SearchResultsView(ListView):
         company_name_exclude_query = self.request.GET.get('company_name_exclude_query')
 
         # Filter accordingly
-        job_list = Jobs.objects.filter(
+        job_list = Job.objects.filter(
             Q(title__icontains=title_include_query) 
             & Q(location__icontains=location_include_query)
             & Q(description__icontains=description_include_query)

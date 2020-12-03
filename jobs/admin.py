@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from jobs.models import Jobs
+from jobs.models import Job
 
-admin.site.register(Jobs)
+admin.site.register(Job)
