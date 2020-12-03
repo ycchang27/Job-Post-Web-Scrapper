@@ -46,17 +46,26 @@ class MonsterCrawler:
         Collects job posts from Monster Jobs with preset configurations
         '''
         # Navigate to the job listings
-        last_posted = 1
-        search_url = self.create_search_url('Software Engineer', 'San Francisco, California', True, last_posted)
-        print('Navigate to url: ' + search_url)
-        self.__driver.get(search_url)
+        last_posted_days = int(os.environ['MONSTER_LAST_DAYS_POSTED'])
+        job_names = os.environ['MONSTER_JOBS'].split(os.environ['MONSTER_DELIMITER'])
+        job_locations = os.environ['MONSTER_LOCATION'].split(os.environ['MONSTER_DELIMITER'])
+        print('Search based on the following:')
+        print('\tJob names: ' + str(job_names))
+        print('\tJob locations: ' + str(job_locations))
+        print('\tJob posted ' + str(last_posted_days) + ' days ago')
+        job_post_urls: list = []
+        for job_location in job_locations:
+            for job_name in job_names:
+                search_url = self.create_search_url(job_name, job_location, True, last_posted_days)
+                print('Navigate to this search url: ' + search_url)
+                self.__driver.get(search_url)
+                job_post_urls.extend(self.extract_job_post_urls(search_url))
         
         # Extract all job post urls
-        job_post_urls = self.extract_job_post_urls(search_url)
         job_post_urls = self.remove_duplicate_urls(job_post_urls)
         
         # Add all jobs to db
-        self.add_to_db(job_post_urls, last_posted)
+        self.add_to_db(job_post_urls, last_posted_days)
         self.__driver.close()
         print('Scraping for Monster is complete')
 
@@ -128,20 +137,21 @@ class MonsterCrawler:
         job_urls = []
         job_posts = self.__driver.find_elements_by_xpath('//section/div[@class="flex-row"]')
         for job_post in job_posts:
-            job_post = job_post.find_element_by_tag_name('a')
-            job_urls.append(str(job_post.get_attribute('href')))
-        print('Link extraction complete. Extracted ' + len(job_urls) + ' urls')
+            try:
+                job_post = job_post.find_element_by_tag_name('a')
+                job_urls.append(str(job_post.get_attribute('href')))
+            except:
+                print('Url doesn\'t exist for this div: ' + str(job_post.get_attribute('innerHTML')))
+        print('Link extraction complete. Extracted ' + str(len(job_urls)) + ' urls')
+        self.sleep_between_three_to_five_seconds()
         return job_urls
     
     def add_to_db(self, job_post_urls: list, last_posted: int):
         '''
         Go to each link and store job data to database
         '''
-        print('There are ' + str(len(job_post_urls)) + ' jobs')
         for url in job_post_urls:
             # Navigate to the url
-            self.__driver.execute_script("window.open('');")
-            self.__driver.switch_to_window(self.__driver.window_handles[1])
             self.__driver.get(url)
             self.sleep_between_three_to_five_seconds()
 
@@ -213,15 +223,11 @@ class MonsterCrawler:
             except Exception as e: 
                 print(e)
 
-            # switch back to original tab
-            self.__driver.close()
-            self.__driver.switch_to.window(self.__driver.window_handles[0])
-
     def remove_duplicate_urls(self, urls: list):
         '''
         Remove urls that already exist in the database
         '''
         existing_urls = list(Job.objects.values_list('url', flat=True))
         urls_to_insert_to_db = list(set(urls) - set(existing_urls))
-        print('Removed duplicates. There are ' + len(urls_to_insert_to_db) + ' urls to be added to database')
+        print('Removed duplicates. There are ' + str(len(urls_to_insert_to_db)) + ' urls to be added to database')
         return urls_to_insert_to_db
