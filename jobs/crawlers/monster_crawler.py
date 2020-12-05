@@ -23,6 +23,7 @@ class MonsterCrawler:
     __TIMEOUT_SECONDS = 10
     __NO_RESPONSE_MAX = 3
     __JOB_BOARD_NAME = 'MONSTER'
+    __JOB_NOT_FOUND_MESSAGE = 'Sorry, we didn\'t find any jobs matching your criteria'
     def __init__(self):
         self.__chrome_options = webdriver.ChromeOptions()
         self.__chrome_options.binary_location = os.environ['GOOGLE_CHROME_BIN']
@@ -114,6 +115,14 @@ class MonsterCrawler:
         Extract job post urls in the job board
         '''
         # Scroll down until all jobs are found
+        try:
+            job_not_found = self.__driver.find_element_by_xpath('//header[@class="title"]/h1')
+            if job_not_found.text == self.__JOB_NOT_FOUND_MESSAGE:
+                print('Jobs not found. Don\'t extract urls for this search category.')
+                return []
+            print('Jobs found. Continue extracting urls.')
+        except Exception as e:
+            print('e')
         current_page: int = 1
         while True:
             print('Currently in page: ' + str(current_page))
@@ -200,11 +209,11 @@ class MonsterCrawler:
             # Display data
             print('-----------------------------------------------------')
             print('url='+url)
-            print('title:'+title)
-            print('location:'+location)
+            print('title:'+title.encode('unicode_escape'))
+            print('location:'+location.encode('unicode_escape'))
             print(('description:'+description).encode('unicode_escape'))
             print('posted_date:'+str(posted_date))
-            print('company:'+company_name)
+            print('company:'+company_name.encode('unicode_escape'))
             print('job_board_site:'+self.__JOB_BOARD_NAME)
             print('-----------------------------------------------------')
 
