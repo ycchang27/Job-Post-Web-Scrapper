@@ -55,7 +55,7 @@ git push heroku master
 4. Go to your Heroku dashboard site (`https://dashboard.heroku.com/apps/<heroku repository name>`).
 5. Go to Settings -> Buildpacks and add the following buildpacks: ![heroku buildpacks](readme_images/heroku_buildpacks.PNG)
 6. Go to Overview and get these installed addons:
-![heroku addons](readme_images/heroku_addons.png)
+![heroku addons](readme_images/heroku_addons.PNG)
 7. Go to Settings -> Config Vars to add the following config pairs: ![sample heroku config](readme_images/sample_heroku_server_config.png) Change SECRET_KEY to the generated key created in local. Also, change HOST, NAME, PASSWORD, PORT, AND USER mentioned in your Heroku Postegre addon. Don't change GOOGLE_CHRONE_BIN and CHROMEDRIVER_PATH unless they are causing an issue.
 8. Go back to your local terminal and setup Django for heroku server.
 ```
