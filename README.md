@@ -41,7 +41,7 @@ heroku local:run python manage.py runserver
 heroku local:run python manage.py createsuperuser
 ```
 When you are done with 1-6 steps, you should have these following files/directories in your root directory:
-![root directory](readme_images/root_directory.png)
+![root directory](readme_images/root_directory.PNG)
 
 <h2>Heroku Setup</h2>
 
@@ -53,7 +53,7 @@ heroku create
 git push heroku master
 ```
 4. Go to your Heroku dashboard site (`https://dashboard.heroku.com/apps/<heroku repository name>`).
-5. Go to Settings -> Buildpacks and add the following buildpacks: ![heroku buildpacks](readme_images/heroku_buildpacks.png)
+5. Go to Settings -> Buildpacks and add the following buildpacks: ![heroku buildpacks](readme_images/heroku_buildpacks.PNG)
 6. Go to Overview and get these installed addons:
 ![heroku addons](readme_images/heroku_addons.png)
 7. Go to Settings -> Config Vars to add the following config pairs: ![sample heroku config](readme_images/sample_heroku_server_config.png) Change SECRET_KEY to the generated key created in local. Also, change HOST, NAME, PASSWORD, PORT, AND USER mentioned in your Heroku Postegre addon. Don't change GOOGLE_CHRONE_BIN and CHROMEDRIVER_PATH unless they are causing an issue.
@@ -62,7 +62,7 @@ git push heroku master
 heroku run python manage.py makemigrations
 heroku run python manage.py migrate
 ```
-9. Schedule batch job by using Heroku Scheduler ![heroku scheduler](readme_images/heroku_scheduler.png) Note: You can directly run scraping job by running this command in your local terminal:
+9. Schedule batch job by using Heroku Scheduler ![heroku scheduler](readme_images/heroku_scheduler.PNG) Note: You can directly run scraping job by running this command in your local terminal:
 ```
 heroku run python manage.py job_scrape
 ```
