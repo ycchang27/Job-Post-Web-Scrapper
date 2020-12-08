@@ -1,15 +1,40 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    function add(id) {
+        var new_input_no = parseInt($("#new" + id).val()) + 1;
+        var new_input="<input type='text' id='new_" + new_input_no + "'> </br>";
+        $("#new" + id).append(new_input);
+        $("#total_" + id).val(new_input_no)
+    }
+    function remove(id) {
+        var last_input_no = $(id).val();
+        if(last_input_no > 1){
+            $('#new_' + last_input_no).remove();
+            $('#total_' + id).val(last_input_no -1);
+        }
+    }
+</script>
+
+
 <h1>HomePage</h1>
 
 <form action="{% url 'search_results' %}" method="get">
-    <input name="title_include_query" type="text" placeholder="Search by title">
+    <!-- Title -->
+    <input id="title_include" name="title_include_query" type="text" placeholder="Search by title">
+    <button onclick="add('title_include')">Add</button>
+    <button onclick="remove('title_include')">remove</button>
+    <br/>
+
     <input name="title_exclude_query" type="text" placeholder="Ignore title">
 
+    <!-- Location -->
     <input name="location_include_query" type="text" placeholder="Search by location">
     <input name="location_exclude_query" type="text" placeholder="Ignore location">
 
+    <!-- Description -->
     <input name="description_include_query" type="text" placeholder="Search by description">
     <input name="description_exclude_query" type="text" placeholder="Ignore description">
 
+    <!-- Company -->
     <input name="company_name_include_query" type="text" placeholder="Search by company name">
     <input name="company_name_exclude_query" type="text" placeholder="Ignore company name">
 

@@ -208,12 +208,12 @@ class MonsterCrawler:
 
             # Display data
             print('-----------------------------------------------------')
-            print('url='+url)
-            print('title:'+title.encode('unicode_escape'))
-            print('location:'+location.encode('unicode_escape'))
+            print('url:'+url)
+            print(('title:'+title).encode('unicode_escape'))
+            print(('location:'+location).encode('unicode_escape'))
             print(('description:'+description).encode('unicode_escape'))
             print('posted_date:'+str(posted_date))
-            print('company:'+company_name.encode('unicode_escape'))
+            print(('company:'+company_name).encode('unicode_escape'))
             print('job_board_site:'+self.__JOB_BOARD_NAME)
             print('-----------------------------------------------------')
 
