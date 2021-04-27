@@ -3,6 +3,7 @@ Django settings for job_finder project.
 
 """
 
+from jobs.configuration.config import App
 from pathlib import Path
 import os
 import django_heroku
@@ -15,10 +16,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = App.config()['APP']['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'True' == os.environ['DEBUG']
+DEBUG = 'True' == App.config()['APP']['DEBUG']
 
 ALLOWED_HOSTS = []
 
@@ -68,12 +69,12 @@ WSGI_APPLICATION = 'job_finder.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-ENGINE = os.environ['ENGINE']
-NAME = os.environ['NAME']
-HOST = os.environ['HOST']
-USER = os.environ['USER']
-PASSWORD = os.environ['PASSWORD']
-PORT = os.environ['PORT']
+ENGINE = App.config()['DATABASE']['ENGINE']
+NAME = App.config()['DATABASE']['NAME']
+HOST = App.config()['DATABASE']['HOST']
+USER = App.config()['DATABASE']['USER']
+PASSWORD = App.config()['DATABASE']['PASSWORD']
+PORT = App.config()['DATABASE']['PORT']
 
 if ENGINE == '' or ENGINE is None:
     DATABASES = {

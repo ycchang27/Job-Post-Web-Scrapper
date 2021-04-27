@@ -241,3 +241,4 @@ dmypy.json
 *.env
 *.sqlite3
 *mydatabase*
+*.ini
