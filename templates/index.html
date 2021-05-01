@@ -1,42 +1,26 @@
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
-    function add(id) {
-        var new_input_no = parseInt($("#new" + id).val()) + 1;
-        var new_input="<input type='text' id='new_" + new_input_no + "'> </br>";
-        $("#new" + id).append(new_input);
-        $("#total_" + id).val(new_input_no)
-    }
-    function remove(id) {
-        var last_input_no = $(id).val();
-        if(last_input_no > 1){
-            $('#new_' + last_input_no).remove();
-            $('#total_' + id).val(last_input_no -1);
-        }
-    }
-</script>
-
-
-<h1>HomePage</h1>
-
-<form action="{% url 'search_results' %}" method="get">
-    <!-- Title -->
-    <input id="title_include" name="title_include_query" type="text" placeholder="Search by title">
-    <button onclick="add('title_include')">Add</button>
-    <button onclick="remove('title_include')">remove</button>
-    <br/>
-
-    <input name="title_exclude_query" type="text" placeholder="Ignore title">
-
-    <!-- Location -->
-    <input name="location_include_query" type="text" placeholder="Search by location">
-    <input name="location_exclude_query" type="text" placeholder="Ignore location">
-
-    <!-- Description -->
-    <input name="description_include_query" type="text" placeholder="Search by description">
-    <input name="description_exclude_query" type="text" placeholder="Ignore description">
-
-    <!-- Company -->
-    <input name="company_name_include_query" type="text" placeholder="Search by company name">
-    <input name="company_name_exclude_query" type="text" placeholder="Ignore company name">
-
-    <input type="submit" value="Submit">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <title>Job Dashboard</title>
+    </head>
+    <body>
+        <h1>Job Dashboard</h1>
+        <form action="{% url 'search_results' %}" method="GET">
+            <div class="form-group">
+                <label for="query_label">Raw Query</label>
+                <textarea rows = "5" cols = "60" name = "raw_query">Enter query here...</textarea>
+                <!-- <input id="raw_query" name="raw_query" type="text" placeholder="Raw Query"> -->
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    </body>
+</html>

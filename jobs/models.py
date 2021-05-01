@@ -8,3 +8,7 @@ class Job(models.Model):
     posted_date = models.DateField()
     company_name = models.CharField(max_length=250)
     job_board_site = models.CharField(max_length=250)
+
+    class Meta:
+        # table name
+        db_table = 'job'

@@ -6,22 +6,18 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from bs4 import BeautifulSoup
+from django.db.models import Q
 
-from jobs.configuration.config import App
 from datetime import datetime, timedelta
-import os
 import random
-import re
-import sys
 import time
-import traceback
 
 from jobs.models import Job
+from jobs.configuration.config import App
 
 class LinkedInCrawler:
     __TIMEOUT_SECONDS = 10
-    __NO_RESPONSE_MAX = 50
+    __NO_RESPONSE_MAX = 20
     __JOB_BOARD_NAME = 'LINKEDIN'
     def __init__(self):
         chrome_bin_path: str = App.config()['APP']['GOOGLE_CHROME_BIN']
@@ -36,9 +32,17 @@ class LinkedInCrawler:
         self.__chrome_options.add_argument('--incognito')
         self.__chrome_options.add_argument('--disable-extensions')
         self.__chrome_options.add_argument('--version')
-        self.__driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=self.__chrome_options)
+        self.__driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=self.__chrome_options, service_log_path='NUL')
         self.__action = ActionChains(self.__driver)
         print('Using driver: ' + self.__driver.execute_script("return navigator.userAgent"))
+
+
+    def sleep_between_half_to_one_second(self):
+        '''
+        Sleeps between 0.5 to 1 seconds
+        '''
+        time.sleep(random.randint(5, 10) / 10.0)
+
 
     def sleep_between_three_to_four_seconds(self):
         '''
@@ -46,26 +50,28 @@ class LinkedInCrawler:
         '''
         time.sleep(random.randint(30, 40) / 10.0)
 
-    def scrape(self):
+
+    def get_job_urls(self, job_name: str, location: str):
         '''
-        Collects job posts from LinkedIn Jobs with preset configurations
+        Navigate to the job listings and fetch job urls
         '''
         # Navigate to the job listings
+        self.sleep_between_three_to_four_seconds()
         self.__driver.get('https://www.linkedin.com/jobs/')
         job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
             .until(EC.presence_of_element_located((By.XPATH , \
             '//input[@aria-label="Search job titles or companies"]'))
         )
         job_name_input.clear()
-        job_name_input.send_keys('Software Engineer')
+        job_name_input.send_keys(job_name)
         job_location_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
             .until(EC.presence_of_element_located((By.XPATH , \
             '//input[@aria-label="Location"]'))
         )
         job_location_input.clear()
-        job_location_input.send_keys('Las Vegas, Nevada, United States')
-        self.sleep_between_three_to_four_seconds()
+        job_location_input.send_keys(location)
         job_location_input.send_keys(Keys.ENTER)
+        self.sleep_between_three_to_four_seconds()
 
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         last_height = self.__driver.execute_script('return document.body.scrollHeight')
@@ -75,7 +81,7 @@ class LinkedInCrawler:
             self.__driver.execute_script('window.scrollTo(0, ' + str(last_height) + ')')
             new_height = self.__driver.execute_script('return document.body.scrollHeight')
             last_height = new_height
-            time.sleep(0.5)
+            self.sleep_between_half_to_one_second()
             try:
                 see_more_jobs = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                     .until(EC.presence_of_element_located((By.CSS_SELECTOR , \
@@ -98,6 +104,8 @@ class LinkedInCrawler:
             except TimeoutException:
                 print('timed out - please look into this')
                 no_response_count += 1
+            finally:
+                self.sleep_between_half_to_one_second()
 
         # Get all currently listed job urls
         job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
@@ -106,10 +114,53 @@ class LinkedInCrawler:
             urls.append(job_post.get_attribute('href')) 
         self.__driver.execute_script("window.open('');")
         self.__driver.switch_to_window(self.__driver.window_handles[1])
+        print('There are ' + str(len(job_posts)) + ' jobs for ' + job_name + ' in ' + location)
+        self.sleep_between_three_to_four_seconds()
+        return urls
+
+
+    def remove_duplicates(self, urls):
+        '''
+        Removes already existing url(s) in the list
+        '''
+        new_unique_urls = []
+        for url in urls:
+            if not(Job.objects.filter(Q(url=url)).exists()):
+                new_unique_urls.append(url)
+        print('After filtering duplicates, there are total ' + str(len(urls)) + ' jobs')
+        return urls
+
+
+    def scrape(self):
+        '''
+        Collects job posts from LinkedIn Jobs with preset configurations
+        '''
+        # Get the urls for specified criteria
+        urls = []
+        delimiter: str = App.config()['LINKEDIN']['DELIMITER']
+        job_names: str = App.config()['LINKEDIN']['JOB_NAMES']
+        locations: str = App.config()['LINKEDIN']['LOCATIONS']
+
+        job_names = job_names.split(delimiter)
+        locations = locations.split(delimiter)
+
+        for job_name in job_names:
+            for location in locations:
+                try:
+                    urls.extend(self.get_job_urls(job_name, location))
+                except Exception as e:
+                    print('Exception has occurred. Skipping search for ' + job_name + ' in ' + location)
+                    print(e)
+
+        # exit early if there are no jobs found
+        if(len(urls) == 0):
+            print('There are no jobs found. Exiting the flow')
+            return
+
+        # Remove duplicate urls
+        urls = self.remove_duplicates(urls)
 
         # Navigate to each url and extract data
-        print('There are ' + str(len(job_posts)) + ' jobs')
-        self.sleep_between_three_to_four_seconds()
         failed_urls = []
         for url in urls:
             # Navigate to the url
@@ -156,15 +207,15 @@ class LinkedInCrawler:
                 posted_date = datetime.now() # too small to subtract
 
             # Display data
-            print('-----------------------------------------------------')
-            print('url='+url)
-            print('title:'+title)
-            print('location:'+location)
-            print(('description:'+description).encode('unicode_escape'))
-            print('posted_date:'+str(posted_date))
-            print('company:'+company_name)
-            print('job_board_site:'+self.__JOB_BOARD_NAME)
-            print('-----------------------------------------------------')
+            # print('-----------------------------------------------------')
+            # print('url='+url)
+            # print('title:'+title)
+            # print('location:'+location)
+            # print(('description:'+description).encode('unicode_escape'))
+            # print('posted_date:'+str(posted_date))
+            # print('company:'+company_name)
+            # print('job_board_site:'+self.__JOB_BOARD_NAME)
+            # print('-----------------------------------------------------')
 
             # Save to database
             try:
