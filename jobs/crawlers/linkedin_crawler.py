@@ -56,6 +56,7 @@ class LinkedInCrawler:
         Navigate to the job listings and fetch job urls
         '''
         # Navigate to the job listings
+        print('Navigate to job listings for ' + job_name + ' in ' + location)
         self.sleep_between_three_to_four_seconds()
         self.__driver.get('https://www.linkedin.com/jobs/')
         job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
@@ -72,8 +73,36 @@ class LinkedInCrawler:
         job_location_input.send_keys(location)
         job_location_input.send_keys(Keys.ENTER)
         self.sleep_between_three_to_four_seconds()
+        print('Finished navigating to job listings for ' + job_name + ' in ' + location)
 
+        # Select last 30 days option
+        try:
+            print('Select last 30 days option')
+            time_options_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                .until(EC.presence_of_element_located((By.XPATH , \
+                '//button[@aria-controls="TIME_POSTED_RANGE-dropdown"]'))
+            )
+            time_options_button.click()
+            self.sleep_between_half_to_one_second()
+            last_30days_label = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                .until(EC.presence_of_element_located((By.XPATH , \
+                '//label[@for="TIME_POSTED_RANGE-2"]'))
+            )
+            last_30days_label.click()
+            self.sleep_between_half_to_one_second()
+            save_settings_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+                .until(EC.presence_of_element_located((By.XPATH , \
+                '//button[@data-tracking-control-name="f_TPR-done-btn"]'))
+            )
+            save_settings_button.click()
+            print('Finished selecting last 30 days option')
+            self.sleep_between_three_to_four_seconds()
+        except Exception as e:
+            print('Failed selecting last 30 days option')
+            print(e)
+        
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
+        print('Get all job post urls')
         last_height = self.__driver.execute_script('return document.body.scrollHeight')
         has_retried: bool = False
         no_response_count: int = 0
@@ -106,9 +135,10 @@ class LinkedInCrawler:
                 no_response_count += 1
             finally:
                 self.sleep_between_half_to_one_second()
+        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
+        print('Finished getting all job post urls')
 
         # Get all currently listed job urls
-        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
         urls = []
         for job_post in job_posts:
             urls.append(job_post.get_attribute('href')) 
@@ -123,10 +153,12 @@ class LinkedInCrawler:
         '''
         Removes already existing url(s) in the list
         '''
+        print('Filter duplicates')
         new_unique_urls = []
         for url in urls:
             if not(Job.objects.filter(Q(url=url)).exists()):
                 new_unique_urls.append(url)
+        new_unique_urls = list(set(new_unique_urls))
         print('After filtering duplicates, there are total ' + str(len(urls)) + ' jobs')
         return urls
 
@@ -161,9 +193,11 @@ class LinkedInCrawler:
         urls = self.remove_duplicates(urls)
 
         # Navigate to each url and extract data
+        print('Extract all job posts')
         failed_urls = []
         for url in urls:
             # Navigate to the url
+            print('Extract job post for url = ' + url)
             self.__driver.get(url)
             try:
                 show_more_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
@@ -228,14 +262,17 @@ class LinkedInCrawler:
                     company_name=company_name,
                     job_board_site=self.__JOB_BOARD_NAME
                 )
-                print('job added')
+                print('Job successfully inserted for ' + title + ' in ' + location)
             except Exception as e: 
+                print('Faced an issue while inserting this job to database')
                 print(e)
             finally:
+                print('Finished extracting job post for url = ' + url)
                 self.sleep_between_three_to_four_seconds()
 
         # close
-        print('failed urls count: ' + str(len(failed_urls)) + '/' + str(len(urls)))
+        print('Finished extracting job posts')
+        print('Failed urls count: ' + str(len(failed_urls)) + '/' + str(len(urls)))
         self.__driver.close()
         self.__driver.switch_to.window(self.__driver.window_handles[0])
         self.__driver.close()
