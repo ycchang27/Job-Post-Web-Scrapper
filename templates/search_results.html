@@ -1,15 +1,56 @@
-<h1>Search Results</h1>
-<h3>Found {{ job_list|length }} job(s)</h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-{% for job in job_list %}
-<hr>
-<div>
-    <h2>{{ job.title }} | {{ job.location }} | {{ job.company_name }}</h2>
-    <h3>{{ job.job_board_site }} | {{ job.posted_date }}</h3>
-    {{ job.url }}
-    <br/>
-    <br/>
-    {{ job.description }}
-</div>
-<hr>
-{% endfor %}
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <title>Job Dashboard</title>
+
+        <!-- Load CSS -->
+        <link rel="stylesheet" href="{% static 'css/search_results.css' %}">
+    </head>
+    <body style="background-color:lightblue;">
+        <!-- Heading -->
+        <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="/">Job Dashboard</a>
+        </nav>
+
+        <!-- Query Results -->
+        <div class="result_wrapper">
+            <p>Found {{ job_list|length }} job(s)</p>
+            <br/>
+            <table class="table-bordered">
+                {% for job in job_list %}
+                <tbody>
+                    <tr>
+                        <td class="btn_td">
+                            <div class="btn_div">
+                                <button type="submit" class="btn btn-danger">Ban Company</button>
+                                <button type="submit" class="btn btn-danger">Delete Job Post</button>
+                                <button type="submit" class="btn btn-danger">Ban Job Post</button>
+                            </div>
+                        </td>
+                        <td class="job_td">
+                            <div class="job_div">
+                                <a href="{{ job.url }}"><h2>{{ job.title }} | {{ job.location }} | {{ job.company_name }}</h2></a>
+                                <h5>{{ job.job_board_site }} | {{ job.posted_date }}</h5>
+                                <hr/>
+                                <p>{{ job.description }}</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+</html>
