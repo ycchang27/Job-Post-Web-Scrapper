@@ -1,1 +1,0 @@
-web: py manage.py runserver localhost:8080
