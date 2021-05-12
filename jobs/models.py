@@ -12,3 +12,10 @@ class Job(models.Model):
     class Meta:
         # table name
         db_table = 'job'
+
+class JobPostBanList(models.Model):
+    url = models.CharField(max_length=250, unique=True)
+
+class CompanyBanList(models.Model):
+    company_name = models.CharField(max_length=250, unique=True)
+

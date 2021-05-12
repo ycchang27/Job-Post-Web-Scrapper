@@ -27,13 +27,29 @@
                 {% for job in job_list %}
                 <tbody>
                     <tr>
+                        <!-- Buttons Column -->
                         <td class="btn_td">
                             <div class="btn_div">
-                                <button type="submit" class="btn btn-danger">Ban Company</button>
-                                <button type="submit" class="btn btn-danger">Delete Job Post</button>
-                                <button type="submit" class="btn btn-danger">Ban Job Post</button>
+                                <!-- Ban Company -->
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="company_name" value="{{ job.company_name }}">
+                                    <button type="submit" class="btn btn-danger" name="ban_company">Ban Company</button>
+                                </form>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="url" value="{{ job.url }}">
+                                    <button type="submit" class="btn btn-danger" name="delete_job_post">Delete Job Post</button>
+                                </form>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="url" value="{{ job.url }}">
+                                    <button type="submit" class="btn btn-danger" name="ban_job_post">Ban Job Post</button>
+                                </form>
+                                
                             </div>
                         </td>
+                        <!-- Job Post Column -->
                         <td class="job_td">
                             <div class="job_div">
                                 <a href="{{ job.url }}"><h2>{{ job.title }} | {{ job.location }} | {{ job.company_name }}</h2></a>
@@ -54,3 +70,5 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </body>
 </html>
+<!-- https://stackoverflow.com/questions/11336548/django-taking-values-from-post-request
+https://docs.djangoproject.com/en/dev/ref/request-response/#httprequest-objects -->

@@ -22,10 +22,10 @@
 
         <!-- Query Form -->
         <div class="form_wrapper">
-            <form  action="{% url 'search_results' %}" method="GET">
+            <form action="{% url 'search_results' %}" method="GET">
                 <div class="form-group row form_row">
                     <p>Insert a SQL statement to query in <b>Job</b> table</p>
-                    <textarea rows="5" cols="200" name="raw_query">SELECT * FROM Job LIMIT 1;</textarea>
+                    <textarea id="raw_query" rows="5" cols="200" name="raw_query">SELECT * FROM Job LIMIT 1;</textarea>
                 </div>
                 <div class="form-group row form_row">
                     <button type="submit" class="btn btn-primary">Submit</button>

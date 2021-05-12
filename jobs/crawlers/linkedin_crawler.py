@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import random
 import time
 
-from jobs.models import Job
+from jobs.models import Job, CompanyBanList, JobPostBanList
 from jobs.configuration.config import App
 
 class LinkedInCrawler:
@@ -154,13 +154,25 @@ class LinkedInCrawler:
         Removes already existing url(s) in the list
         '''
         print('Filter duplicates')
+        urls = set(urls)
         new_unique_urls = []
         for url in urls:
-            if not(Job.objects.filter(Q(url=url)).exists()):
+            if not(Job.objects.filter(Q(url=url)).exists() or JobPostBanList.objects.filter(Q(url=url)).exists()):
                 new_unique_urls.append(url)
-        new_unique_urls = list(set(new_unique_urls))
         print('After filtering duplicates, there are total ' + str(len(urls)) + ' jobs')
         return urls
+
+    def remove_old_records(self):
+        '''
+        Removes old records (older than last 30 days)
+        '''
+        print('Remove records older than 30 days')
+        try:
+            Job.objects.filter(posted_date__lt=datetime.now() - timedelta(days=30)).delete()
+        except Exception as e:
+            print('Removing old records failed. Skipping this flow')
+            print(e)
+        print('Finished removing records older than 30 days')
 
 
     def scrape(self):
@@ -168,6 +180,7 @@ class LinkedInCrawler:
         Collects job posts from LinkedIn Jobs with preset configurations
         '''
         # Get the urls for specified criteria
+        self.remove_old_records()
         urls = []
         delimiter: str = App.config()['LINKEDIN']['DELIMITER']
         job_names: str = App.config()['LINKEDIN']['JOB_NAMES']
@@ -240,6 +253,10 @@ class LinkedInCrawler:
             else:
                 posted_date = datetime.now() # too small to subtract
 
+            # Skip record if this is part of any ban lists
+            if CompanyBanList.objects.filter(Q(company_name=company_name)).exists():
+                print('This company is banned: ' + company_name + '. Continue with next job post')
+                continue
             # Display data
             # print('-----------------------------------------------------')
             # print('url='+url)
