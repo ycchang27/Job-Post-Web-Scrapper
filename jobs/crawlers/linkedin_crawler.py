@@ -75,9 +75,9 @@ class LinkedInCrawler:
         self.sleep_between_three_to_four_seconds()
         print('Finished navigating to job listings for ' + job_name + ' in ' + location)
 
-        # Select last 30 days option
+        # Select last 7 days option
         try:
-            print('Select last 30 days option')
+            print('Select last 7 days option')
             time_options_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
                 '//button[@aria-controls="TIME_POSTED_RANGE-dropdown"]'))
@@ -86,7 +86,7 @@ class LinkedInCrawler:
             self.sleep_between_half_to_one_second()
             last_30days_label = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
-                '//label[@for="TIME_POSTED_RANGE-2"]'))
+                '//label[@for="TIME_POSTED_RANGE-1"]'))
             )
             last_30days_label.click()
             self.sleep_between_half_to_one_second()
@@ -95,10 +95,10 @@ class LinkedInCrawler:
                 '//button[@data-tracking-control-name="f_TPR-done-btn"]'))
             )
             save_settings_button.click()
-            print('Finished selecting last 30 days option')
+            print('Finished selecting last 7 days option')
             self.sleep_between_three_to_four_seconds()
         except Exception as e:
-            print('Failed selecting last 30 days option')
+            print('Failed selecting last 7 days option')
             print(e)
         
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
