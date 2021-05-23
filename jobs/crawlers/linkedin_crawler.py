@@ -208,6 +208,7 @@ class LinkedInCrawler:
         # Navigate to each url and extract data
         print('Extract all job posts')
         failed_urls = []
+        job_index: int = 1
         for url in urls:
             # Navigate to the url
             print('Extract job post for url = ' + url)
@@ -279,12 +280,13 @@ class LinkedInCrawler:
                     company_name=company_name,
                     job_board_site=self.__JOB_BOARD_NAME
                 )
-                print('Job successfully inserted for ' + title + ' in ' + location)
+                print('Job(#' + str(job_index) + '/' + str(len(urls)) + ') successfully inserted for ' + title + ' in ' + location)
             except Exception as e: 
                 print('Faced an issue while inserting this job to database')
                 print(e)
             finally:
                 print('Finished extracting job post for url = ' + url)
+                job_index += 1
                 self.sleep_between_three_to_four_seconds()
 
         # close
