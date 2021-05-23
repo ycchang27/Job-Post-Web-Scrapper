@@ -164,15 +164,15 @@ class LinkedInCrawler:
 
     def remove_old_records(self):
         '''
-        Removes old records (older than last 30 days)
+        Removes old records (older than last 7 days)
         '''
-        print('Remove records older than 30 days')
+        print('Remove records older than 7 days')
         try:
-            Job.objects.filter(posted_date__lt=datetime.now() - timedelta(days=30)).delete()
+            Job.objects.filter(posted_date__lt=datetime.now() - timedelta(days=7)).delete()
         except Exception as e:
             print('Removing old records failed. Skipping this flow')
             print(e)
-        print('Finished removing records older than 30 days')
+        print('Finished removing records older than 7 days')
 
 
     def scrape(self):
