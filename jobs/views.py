@@ -32,7 +32,7 @@ class SearchResultsView(ListView):
             banned_company_name = request.POST.get('company_name')
             CompanyBanList.objects.get_or_create(company_name=banned_company_name)
             Job.objects.filter(company_name=banned_company_name).delete()
-            return redirect('/search/?raw_query=' + request.GET.get('raw_query'))
+            # return redirect('/search/?raw_query=' + request.GET.get('raw_query'))
         elif 'delete_job_post' in request.POST:
             delete_url = request.POST.get('url')
             Job.objects.filter(url=delete_url).delete()
@@ -40,7 +40,5 @@ class SearchResultsView(ListView):
             ban_url = request.POST.get('url')
             JobPostBanList.objects.get_or_create(url=ban_url)
             Job.objects.filter(url=ban_url).delete()
-        else:
-            return
-
-        return redirect('/search/?raw_query=' + request.GET.get('raw_query'))
+        response = HttpResponse()
+        return response
