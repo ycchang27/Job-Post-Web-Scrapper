@@ -44,11 +44,11 @@ class LinkedInCrawler:
         time.sleep(random.randint(5, 10) / 10.0)
 
 
-    def sleep_between_three_to_four_seconds(self):
+    def sleep_between_four_to_six_seconds(self):
         '''
-        Sleeps between 3 to 4 seconds
+        Sleeps between 4 to 6 seconds
         '''
-        time.sleep(random.randint(30, 40) / 10.0)
+        time.sleep(random.randint(40, 60) / 10.0)
 
 
     def get_job_urls(self, job_name: str, location: str):
@@ -57,7 +57,7 @@ class LinkedInCrawler:
         '''
         # Navigate to the job listings
         print('Navigate to job listings for ' + job_name + ' in ' + location)
-        self.sleep_between_three_to_four_seconds()
+        self.sleep_between_four_to_six_seconds()
         self.__driver.get('https://www.linkedin.com/jobs/')
         job_name_input: WebElement = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
             .until(EC.presence_of_element_located((By.XPATH , \
@@ -72,7 +72,7 @@ class LinkedInCrawler:
         job_location_input.clear()
         job_location_input.send_keys(location)
         job_location_input.send_keys(Keys.ENTER)
-        self.sleep_between_three_to_four_seconds()
+        self.sleep_between_four_to_six_seconds()
         print('Finished navigating to job listings for ' + job_name + ' in ' + location)
 
         # Select last 7 days option
@@ -80,27 +80,26 @@ class LinkedInCrawler:
             print('Select last 7 days option')
             time_options_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
-                '//button[@aria-controls="TIME_POSTED_RANGE-dropdown"]'))
+                '//button[@data-tracking-control-name="public_jobs_f_TPR"]'))
             )
             time_options_button.click()
             self.sleep_between_half_to_one_second()
-            last_30days_label = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
+            last_7days_label = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
-                '//label[@for="TIME_POSTED_RANGE-1"]'))
+                '//label[@for="f_TPR-1"]'))
             )
-            last_30days_label.click()
+            last_7days_label.click()
             self.sleep_between_half_to_one_second()
             save_settings_button = WebDriverWait(self.__driver, self.__TIMEOUT_SECONDS) \
                 .until(EC.presence_of_element_located((By.XPATH , \
-                '//button[@data-tracking-control-name="f_TPR-done-btn"]'))
+                '//div[@class="collapsible-dropdown__list no-focus-ring"]/button[@class="filter__submit-button"]'))
             )
             save_settings_button.click()
+            self.sleep_between_four_to_six_seconds()
             print('Finished selecting last 7 days option')
-            self.sleep_between_three_to_four_seconds()
         except Exception as e:
             print('Failed selecting last 7 days option')
             print(e)
-        
         # Scroll down until you have "all results" (Show more jobs tend to "break" after around 900-1000 jobs)
         print('Get all job post urls')
         last_height = self.__driver.execute_script('return document.body.scrollHeight')
@@ -135,7 +134,7 @@ class LinkedInCrawler:
                 no_response_count += 1
             finally:
                 self.sleep_between_half_to_one_second()
-        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/a')
+        job_posts = self.__driver.find_elements_by_xpath('//ul[@class="jobs-search__results-list"]/li/div/a')
         print('Finished getting all job post urls')
 
         # Get all currently listed job urls
@@ -145,7 +144,7 @@ class LinkedInCrawler:
         self.__driver.execute_script("window.open('');")
         self.__driver.switch_to_window(self.__driver.window_handles[1])
         print('There are ' + str(len(job_posts)) + ' jobs for ' + job_name + ' in ' + location)
-        self.sleep_between_three_to_four_seconds()
+        self.sleep_between_four_to_six_seconds()
         return urls
 
 
@@ -287,7 +286,7 @@ class LinkedInCrawler:
             finally:
                 print('Finished extracting job post for url = ' + url)
                 job_index += 1
-                self.sleep_between_three_to_four_seconds()
+                self.sleep_between_four_to_six_seconds()
 
         # close
         print('Finished extracting job posts')
